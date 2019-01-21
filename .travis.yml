@@ -1,0 +1,15 @@
+language: python
+
+python:
+    - "2.7"
+    - "3.5"
+    - "3.6"
+    - "3.7"
+
+# install dependencies
+install: 
+  -pip install -r requirements.txt
+
+# check style
+script:
+    - pylint --output-format=text *.py
