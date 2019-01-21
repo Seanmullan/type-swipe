@@ -11,4 +11,4 @@ install:
 
 # check style
 script:
-  - pylint --output-format=text *.py
+  - find . -iname "*.py" | xargs pylint
