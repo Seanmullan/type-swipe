@@ -12,3 +12,7 @@ install:
 # check style
 script:
   - find . -iname "*.py" | xargs pylint
+
+# notify slack
+notifications:
+  slack: sdpteam5:Phj2pEgAtOIqSsJ9hST7F1qD
