@@ -1,2 +1,2 @@
 # PEP8
-pylint==2.2.2
+pylint==1.9.4
