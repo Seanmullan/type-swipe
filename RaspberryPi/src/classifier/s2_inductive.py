@@ -1,15 +1,13 @@
-from src.classifier import State
-from src.classifier import CameraState
-
-class InductiveState(State):
+class InductiveState():
 
     def __init__(self):
         pass
 
     # Returns state based on transition criteria
     def handle(self):
+        print("State 2")
         if (self.checkConditions()):
-            return CameraState()
+            return "Camera"
 
     # Check condition for state transition
     def checkConditions(self):

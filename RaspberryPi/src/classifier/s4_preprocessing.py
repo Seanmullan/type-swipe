@@ -1,15 +1,13 @@
-from src.classifier import State
-from src.classifier import ModelState
-
-class PreprocessingState(State):
+class PreprocessingState():
 
     def __init__(self):
         pass
 
     # Returns state based on transition criteria
     def handle(self):
+        print("State 4")
         if (self.checkConditions()):
-            return ModelState()
+            return "Model"
 
     # Check condition for state transition
     def checkConditions(self):

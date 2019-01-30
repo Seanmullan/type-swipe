@@ -1,15 +1,13 @@
-from src.classifier import State
-from src.classifier import PreprocessingState
-
-class CameraState(State):
+class CameraState():
 
     def __init__(self):
         pass
 
     # Returns state based on transition criteria
     def handle(self):
+        print("State 3")
         if (self.checkConditions()):
-            return PreprocessingState()
+            return "Preprocessing"
 
     # Check condition for state transition
     def checkConditions(self):

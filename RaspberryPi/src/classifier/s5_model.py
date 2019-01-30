@@ -1,15 +1,13 @@
-from src.classifier import State
-from src.classifier import ProximityState
-
-class ModelState(State):
+class ModelState():
 
     def __init__(self):
         pass
 
     # Returns state based on transition criteria
     def handle(self):
+        print("State 5")
         if (self.checkConditions()):
-            return ProximityState()
+            return "Proximity"
 
     # Check condition for state transition
     def checkConditions(self):

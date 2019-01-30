@@ -1,15 +1,13 @@
-from src.classifier import State
-from src.classifier import InductiveState
-
-class ProximityState(State):
+class ProximityState():
 
     def __init__(self):
         pass
 
     # Returns state based on transition criteria
     def handle(self):
+        print("State 1")
         if (self.checkConditions()):
-            return InductiveState()
+            return "Inductive"
 
     # Check condition for state transition
     def checkConditions(self):
