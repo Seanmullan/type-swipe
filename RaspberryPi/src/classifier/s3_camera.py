@@ -1,14 +1,27 @@
+"""
+Camera state when non-metallic object is in sensor zone
+"""
+
 class CameraState():
+    """
+    This class takes a photo of the object
+    """
 
     def __init__(self):
         pass
 
-    # Returns state based on transition criteria
     def handle(self):
-        print("State 3")
-        if (self.checkConditions()):
+        """
+        Returns state based on transition criteria
+        """
+        print("Transitioned to Camera State")
+        if self.check_conditions():
             return "Preprocessing"
+        return "Camera"
 
-    # Check condition for state transition
-    def checkConditions(self):
+    @staticmethod
+    def check_conditions():
+        """
+        Check condition for state transition
+        """
         return True

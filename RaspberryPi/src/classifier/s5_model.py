@@ -1,14 +1,27 @@
+"""
+Model state when preprocessed image is passed to machine learning model
+"""
+
 class ModelState():
+    """
+    This class passes the preprocessed image to the machine learning model
+    """
 
     def __init__(self):
         pass
 
-    # Returns state based on transition criteria
     def handle(self):
-        print("State 5")
-        if (self.checkConditions()):
+        """
+        Returns state based on transition criteria
+        """
+        print("Transitioned to Model State")
+        if self.check_conditions():
             return "Proximity"
+        return "Model"
 
-    # Check condition for state transition
-    def checkConditions(self):
+    @staticmethod
+    def check_conditions():
+        """
+        Check condition for state transition
+        """
         return True

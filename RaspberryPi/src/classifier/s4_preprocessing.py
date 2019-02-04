@@ -1,14 +1,27 @@
+"""
+Preprocessing state when photo of object is taken
+"""
+
 class PreprocessingState():
+    """
+    This class preprocesses the image
+    """
 
     def __init__(self):
         pass
 
-    # Returns state based on transition criteria
     def handle(self):
-        print("State 4")
-        if (self.checkConditions()):
+        """
+        Returns state based on transition criteria
+        """
+        print("Transitioned to Preprocessing State")
+        if self.check_conditions():
             return "Model"
+        return "Preprocessing"
 
-    # Check condition for state transition
-    def checkConditions(self):
+    @staticmethod
+    def check_conditions():
+        """
+        Check condition for state transition
+        """
         return True

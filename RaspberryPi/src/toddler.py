@@ -1,31 +1,40 @@
+"""
+Entry point for the program, which is called by Sandbox
+"""
+
 import time
-import numpy
-import cv2
-import threading
 import sys
-sys.path.append('/home/student/classifier/')
 import state_machine
+sys.path.append('/home/student/classifier/')
 
 class Toddler:
+    """
+    This class initialises all the threads, and updates the Data class with sensor
+    and image data
+    """
 
     def __init__(self, IO):
 
-        state = state_machine.StateMachine(1)
+        state = state_machine.StateMachine(0)
         state.start()
 
         self.camera = IO.camera.initCamera('pi', 'low')
-        self.getInputs = IO.interface_kit.getInputs
-        self.getSensors = IO.interface_kit.getSensors
-        self.mc = IO.motor_control
-        self.sc = IO.servo_control
-        print(sys.path)
+        self.get_inputs = IO.interface_kit.getInputs
+        self.get_sensors = IO.interface_kit.getSensors
+        self.m_c = IO.motor_control
+        self.s_c = IO.servo_control
 
     def control(self):
-        print('{}\t{}'.format(self.getSensors(), self.getInputs()))
+        """
+        Called by Sandbox thread. Updates sensor data in Data class.
+        """
+        print('{}\t{}'.format(self.get_sensors(), self.get_inputs()))
         time.sleep(0.05)
 
     def vision(self):
+        """
+        Called by Sandbox thread. Updates image data in Data class.
+        """
         image = self.camera.getFrame()
         self.camera.imshow('Camera', image)
         time.sleep(0.05)
-        
