@@ -2,7 +2,7 @@
 Preprocessing state when photo of object is taken
 """
 
-class PreprocessingState():
+class PreprocessingState(object):
     """
     This class preprocesses the image
     """
@@ -14,7 +14,7 @@ class PreprocessingState():
         """
         Returns state based on transition criteria
         """
-        print("Transitioned to Preprocessing State")
+        print 'Transitioned to Preprocessing State'
         if self.check_conditions():
             return "Model"
         return "Preprocessing"

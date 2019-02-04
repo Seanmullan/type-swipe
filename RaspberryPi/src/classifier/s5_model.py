@@ -2,7 +2,7 @@
 Model state when preprocessed image is passed to machine learning model
 """
 
-class ModelState():
+class ModelState(object):
     """
     This class passes the preprocessed image to the machine learning model
     """
@@ -14,7 +14,7 @@ class ModelState():
         """
         Returns state based on transition criteria
         """
-        print("Transitioned to Model State")
+        print 'Transitioned to Model State'
         if self.check_conditions():
             return "Proximity"
         return "Model"

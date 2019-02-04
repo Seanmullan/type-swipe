@@ -18,7 +18,7 @@ class StateMachine(threading.Thread):
     """
 
     def __init__(self, thread_id):
-        print("Starting Classifier state machine...")
+        print 'Starting Classifier state machine...'
         threading.Thread.__init__(self)
         self.thread_id = thread_id
         self.current_state = "Idle"
@@ -42,5 +42,5 @@ class StateMachine(threading.Thread):
             elif self.current_state == "Model":
                 self.current_state = ModelState().handle()
             else:
-                print("Exiting Classifier state machine")
+                print 'Exiting Classifier state machine'
                 exit(1)

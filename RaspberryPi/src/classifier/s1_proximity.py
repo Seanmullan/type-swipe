@@ -3,7 +3,7 @@ Proximity state when conveyor belt is moving but no object is in
 the sensor zone
 """
 
-class ProximityState():
+class ProximityState(object):
     """
     This class checks if an object enters the sensor zone
     """
@@ -15,7 +15,7 @@ class ProximityState():
         """
         Returns state based on transition criteria
         """
-        print("Transitioned to Proximity State")
+        print 'Transitioned to Proximity State'
         if self.check_conditions():
             return "Inductive"
         return "Proximity"

@@ -2,7 +2,7 @@
 Idle state when conveyor belt isn't moving
 """
 
-class IdleState():
+class IdleState(object):
     """
     This class checks if the Start command has been issued
     """
@@ -14,7 +14,7 @@ class IdleState():
         """
         Returns state based on transition criteria
         """
-        print("Transitioned to Idle State")
+        print 'Transitioned to Idle State'
         if self.check_conditions():
             return "Proximity"
         return "Idle"

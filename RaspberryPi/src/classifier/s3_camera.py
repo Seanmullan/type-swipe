@@ -2,7 +2,7 @@
 Camera state when non-metallic object is in sensor zone
 """
 
-class CameraState():
+class CameraState(object):
     """
     This class takes a photo of the object
     """
@@ -14,7 +14,7 @@ class CameraState():
         """
         Returns state based on transition criteria
         """
-        print("Transitioned to Camera State")
+        print 'Transitioned to Camera State'
         if self.check_conditions():
             return "Preprocessing"
         return "Camera"

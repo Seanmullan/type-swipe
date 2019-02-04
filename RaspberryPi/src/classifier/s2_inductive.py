@@ -2,7 +2,7 @@
 Inductive state when object enters the sensor zone
 """
 
-class InductiveState():
+class InductiveState(object):
     """
     This class checks if the object is metallic
     """
@@ -14,7 +14,7 @@ class InductiveState():
         """
         Returns state based on transition criteria
         """
-        print("Transitioned to Inductive State")
+        print 'Transitioned to Inductive State'
         if self.check_conditions():
             return "Camera"
         return "Inductive"
