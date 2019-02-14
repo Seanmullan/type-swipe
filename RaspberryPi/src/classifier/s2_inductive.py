@@ -1,6 +1,7 @@
 """
 Inductive state when object enters the sensor zone
 """
+import data
 
 class InductiveState(object):
     """
@@ -8,7 +9,7 @@ class InductiveState(object):
     """
 
     def __init__(self):
-        pass
+        self.data = data.Data()
 
     def handle(self):
         """
@@ -19,9 +20,9 @@ class InductiveState(object):
             return "Camera"
         return "Inductive"
 
-    @staticmethod
-    def check_conditions():
+    def check_conditions(self):
         """
         Check condition for state transition
         """
+        print(self.data.get_inductive())
         return True

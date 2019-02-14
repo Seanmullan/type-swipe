@@ -23,6 +23,13 @@ class StateMachine(threading.Thread):
         self.thread_id = thread_id
         self.current_state = "Idle"
 
+        self.idle          = IdleState()
+        self.proximity     = ProximityState()
+        self.inductive     = InductiveState()
+        self.camera        = CameraState()
+        self.preprocessing = PreprocessingState()
+        self.model         = ModelState()
+
     def run(self):
         """
         Transitions to the appropriate state based on the response from each states
@@ -30,17 +37,18 @@ class StateMachine(threading.Thread):
         """
         while True:
             if self.current_state == "Idle":
-                self.current_state = IdleState().handle()
+                self.current_state = self.idle.handle()
             elif self.current_state == "Proximity":
-                self.current_state = ProximityState().handle()
+                self.current_state = self.proximity.handle()
             elif self.current_state == "Inductive":
-                self.current_state = InductiveState().handle()
+                self.current_state = self.inductive.handle()
             elif self.current_state == "Camera":
-                self.current_state = CameraState().handle()
+                self.current_state = self.camera.handle()
             elif self.current_state == "Preprocessing":
-                self.current_state = PreprocessingState().handle()
+                self.current_state = self.preprocessing.handle()
             elif self.current_state == "Model":
-                self.current_state = ModelState().handle()
+                self.current_state = self.model.handle()
             else:
                 print 'Exiting Classifier state machine'
                 exit(1)
+

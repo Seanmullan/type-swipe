@@ -10,7 +10,6 @@ class IOTools:
         self.camera.destroy()
         self.interface_kit.destroy()
         self.motor_control.stopMotors()
-        self.servo_control.destroy()
 
 class Camera:
     def __init__(self):

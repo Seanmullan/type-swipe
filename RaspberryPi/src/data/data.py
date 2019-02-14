@@ -34,6 +34,7 @@ class Data(object):
         return inductive_data
 
     def set_inductive(self, reading):
+        print("CALLED")
         with self.__lock_inductive:
             self.__inductive = reading
     

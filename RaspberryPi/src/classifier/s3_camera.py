@@ -1,6 +1,7 @@
 """
 Camera state when non-metallic object is in sensor zone
 """
+import data
 
 class CameraState(object):
     """
@@ -8,7 +9,7 @@ class CameraState(object):
     """
 
     def __init__(self):
-        pass
+        self.data = data.Data()
 
     def handle(self):
         """
@@ -19,8 +20,7 @@ class CameraState(object):
             return "Preprocessing"
         return "Camera"
 
-    @staticmethod
-    def check_conditions():
+    def check_conditions(self):
         """
         Check condition for state transition
         """

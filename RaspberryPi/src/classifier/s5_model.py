@@ -1,14 +1,14 @@
 """
 Model state when preprocessed image is passed to machine learning model
 """
-
+import data
 class ModelState(object):
     """
     This class passes the preprocessed image to the machine learning model
     """
 
     def __init__(self):
-        pass
+        self.data = data.Data()
 
     def handle(self):
         """
@@ -19,8 +19,7 @@ class ModelState(object):
             return "Proximity"
         return "Model"
 
-    @staticmethod
-    def check_conditions():
+    def check_conditions(self):
         """
         Check condition for state transition
         """

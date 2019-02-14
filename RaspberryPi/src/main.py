@@ -7,7 +7,7 @@ class Main:
     def __init__(self):
         self.__IO = simulateIO.IOTools()
         self.__toddler = toddler.Toddler(self.__IO)
-        
+ 
         def toddler_control():
             while 1:
                 print("toddlercontrol")
@@ -17,7 +17,7 @@ class Main:
             while 1:
                 print("toddlervision")
                 self.__toddler.vision()
-
+ 
         self.__toddler_control = threading.Thread(target = toddler_control )
         self.__toddler_vision = threading.Thread(target = toddler_vision)
 

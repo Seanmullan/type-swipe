@@ -1,6 +1,7 @@
 """
 Preprocessing state when photo of object is taken
 """
+import data
 
 class PreprocessingState(object):
     """
@@ -8,7 +9,7 @@ class PreprocessingState(object):
     """
 
     def __init__(self):
-        pass
+        self.data = data.Data()
 
     def handle(self):
         """
@@ -19,8 +20,7 @@ class PreprocessingState(object):
             return "Model"
         return "Preprocessing"
 
-    @staticmethod
-    def check_conditions():
+    def check_conditions(self):
         """
         Check condition for state transition
         """

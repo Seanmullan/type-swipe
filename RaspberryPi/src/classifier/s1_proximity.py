@@ -2,6 +2,7 @@
 Proximity state when conveyor belt is moving but no object is in
 the sensor zone
 """
+import data
 
 class ProximityState(object):
     """
@@ -9,7 +10,7 @@ class ProximityState(object):
     """
 
     def __init__(self):
-        pass
+        self.data = data.Data()
 
     def handle(self):
         """
@@ -20,8 +21,7 @@ class ProximityState(object):
             return "Inductive"
         return "Proximity"
 
-    @staticmethod
-    def check_conditions():
+    def check_conditions(self):
         """
         Check condition for state transition
         """
