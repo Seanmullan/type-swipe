@@ -1,38 +1,51 @@
-import simulateIO
+"""
+Acts as a Sandbox simulator. Used to test logic flow of program
+"""
+
 import threading
+import simulate_io
 import toddler
 
-class Main:
+class Main(object):
+    """
+    This class initialises a fake IO class and starts threads to call Toddler methods
+    """
 
     def __init__(self):
-        self.__IO = simulateIO.IOTools()
-        self.__toddler = toddler.Toddler(self.__IO)
- 
-        def toddler_control():
-            while 1:
-                print("toddlercontrol")
-                self.__toddler.control()
-            
-        def toddler_vision():
-            while 1:
-                print("toddlervision")
-                self.__toddler.vision()
- 
-        self.__toddler_control = threading.Thread(target = toddler_control )
-        self.__toddler_vision = threading.Thread(target = toddler_vision)
+        self.__io = simulate_io.IOTools()
+        self.__toddler = toddler.Toddler(self.__io)
 
+        def toddler_control():
+            """
+            Invokes Toddler control method
+            """
+            while 1:
+                self.__toddler.control()
+
+        def toddler_vision():
+            """
+            Invokes Toddler vision method
+            """
+            while 1:
+                self.__toddler.vision()
+
+        self.__toddler_control = threading.Thread(target=toddler_control)
+        self.__toddler_vision = threading.Thread(target=toddler_vision)
         self.start_threads()
 
     def start_threads(self):
-        print("Starting threads")
+        """
+        Start control and vision threads
+        """
         self.__toddler_control.start()
         self.__toddler_vision.start()
 
     def destroy(self):
-        self.__done = True
+        """
+        Join threads
+        """
         self.__toddler_control.join()
         self.__toddler_vision.join()
-        self.__IO.destroy()
 
 if __name__ == '__main__':
-    main = Main()
+    MAIN = Main()

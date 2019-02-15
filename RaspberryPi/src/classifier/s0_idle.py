@@ -1,6 +1,7 @@
 """
 Idle state when conveyor belt isn't moving
 """
+
 import data
 
 class IdleState(object):
@@ -24,4 +25,6 @@ class IdleState(object):
         """
         Check condition for state transition
         """
-        return True
+        if self.data.get_run_system():
+            return True
+        return False

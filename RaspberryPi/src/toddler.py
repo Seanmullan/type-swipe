@@ -5,7 +5,7 @@ Entry point for the program, which is called by Sandbox
 import sys
 sys.path.append('classifier/')
 sys.path.append('data/')
-import time
+#pylint: disable=wrong-import-position
 import state_machine
 import data
 

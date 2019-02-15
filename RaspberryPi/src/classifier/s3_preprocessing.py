@@ -1,6 +1,7 @@
 """
 Preprocessing state when photo of object is taken
 """
+
 import data
 
 class PreprocessingState(object):
@@ -16,12 +17,14 @@ class PreprocessingState(object):
         Returns state based on transition criteria
         """
         print 'Transitioned to Preprocessing State'
-        if self.check_conditions():
-            return "Model"
-        return "Preprocessing"
+        image = self.data.get_image_raw()
+        image_processed = self.preprocess(image)
+        self.data.set_image_processed(image_processed)
+        return "Model"
 
-    def check_conditions(self):
+    def preprocess(self, image):
         """
-        Check condition for state transition
+        Preprocesses image
         """
-        return True
+        #pylint: disable=no-self-use
+        return image

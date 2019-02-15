@@ -2,6 +2,7 @@
 Proximity state when conveyor belt is moving but no object is in
 the sensor zone
 """
+
 import data
 
 class ProximityState(object):
@@ -25,4 +26,6 @@ class ProximityState(object):
         """
         Check condition for state transition
         """
-        return True
+        if self.data.get_proximity() < 20:
+            return True
+        return False

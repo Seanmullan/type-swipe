@@ -7,9 +7,8 @@ import threading
 from s0_idle import IdleState
 from s1_proximity import ProximityState
 from s2_inductive import InductiveState
-from s3_camera import CameraState
-from s4_preprocessing import PreprocessingState
-from s5_model import ModelState
+from s3_preprocessing import PreprocessingState
+from s4_model import ModelState
 
 class StateMachine(threading.Thread):
     """
@@ -23,12 +22,11 @@ class StateMachine(threading.Thread):
         self.thread_id = thread_id
         self.current_state = "Idle"
 
-        self.idle          = IdleState()
-        self.proximity     = ProximityState()
-        self.inductive     = InductiveState()
-        self.camera        = CameraState()
+        self.idle = IdleState()
+        self.proximity = ProximityState()
+        self.inductive = InductiveState()
         self.preprocessing = PreprocessingState()
-        self.model         = ModelState()
+        self.model = ModelState()
 
     def run(self):
         """
@@ -42,8 +40,6 @@ class StateMachine(threading.Thread):
                 self.current_state = self.proximity.handle()
             elif self.current_state == "Inductive":
                 self.current_state = self.inductive.handle()
-            elif self.current_state == "Camera":
-                self.current_state = self.camera.handle()
             elif self.current_state == "Preprocessing":
                 self.current_state = self.preprocessing.handle()
             elif self.current_state == "Model":
@@ -51,4 +47,3 @@ class StateMachine(threading.Thread):
             else:
                 print 'Exiting Classifier state machine'
                 exit(1)
-
