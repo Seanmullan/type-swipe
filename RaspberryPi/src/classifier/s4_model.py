@@ -2,26 +2,30 @@
 Model state when preprocessed image is passed to machine learning model
 """
 
+import data
+
 class ModelState(object):
     """
     This class passes the preprocessed image to the machine learning model
     """
 
     def __init__(self):
-        pass
+        self.data = data.Data()
 
     def handle(self):
         """
         Returns state based on transition criteria
         """
         print 'Transitioned to Model State'
-        if self.check_conditions():
-            return "Proximity"
-        return "Model"
+        image = self.data.get_image_processed()
+        classification = self.classify(image)
+        self.data.set_classification(classification)
+        return "Proximity"
 
-    @staticmethod
-    def check_conditions():
+    def classify(self, image):
         """
-        Check condition for state transition
+        Classifies image
         """
-        return True
+        #pylint: disable=unused-argument
+        #pylint: disable=no-self-use
+        return -1

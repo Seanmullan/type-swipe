@@ -2,13 +2,15 @@
 Idle state when conveyor belt isn't moving
 """
 
+import data
+
 class IdleState(object):
     """
     This class checks if the Start command has been issued
     """
 
     def __init__(self):
-        pass
+        self.data = data.Data()
 
     def handle(self):
         """
@@ -19,9 +21,10 @@ class IdleState(object):
             return "Proximity"
         return "Idle"
 
-    @staticmethod
-    def check_conditions():
+    def check_conditions(self):
         """
         Check condition for state transition
         """
-        return True
+        if self.data.get_run_system():
+            return True
+        return False

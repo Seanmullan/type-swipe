@@ -2,13 +2,15 @@
 Inductive state when object enters the sensor zone
 """
 
+import data
+
 class InductiveState(object):
     """
     This class checks if the object is metallic
     """
 
     def __init__(self):
-        pass
+        self.data = data.Data()
 
     def handle(self):
         """
@@ -16,12 +18,13 @@ class InductiveState(object):
         """
         print 'Transitioned to Inductive State'
         if self.check_conditions():
-            return "Camera"
+            return "Preprocessing"
         return "Inductive"
 
-    @staticmethod
-    def check_conditions():
+    def check_conditions(self):
         """
         Check condition for state transition
         """
-        return True
+        if self.data.get_inductive() > 900:
+            return True
+        return False
