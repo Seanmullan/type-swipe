@@ -6,6 +6,7 @@ This Singleton data class provides thread safe getters and setters for shared re
 from __future__ import with_statement
 import threading
 import numpy as np
+import queue
 
 class Singleton(type):
     """
@@ -26,9 +27,9 @@ class Data(object):
     def __init__(self):
         self.__proximity = 0
         self.__inductive = 0
-        self.__image_raw = np.zeros(500)
-        self.__image_processed = np.zeros(500)
-        self.__classification = -1
+        self.__image_raw = np.ndarray((128,160,3))
+        self.__classified_queue = queue.Queue()
+        self.__metal_queue = queue.Queue()
         self.__run_system = False
 
         self.__lock_proximity = threading.RLock()
@@ -94,6 +95,12 @@ class Data(object):
         with self.__lock_image_processed:
             image = self.__image_processed
         return image
+
+    def enqueue_classified_queue(self, classification):
+        self.__classified_queue.put(classification)
+
+    def dequeue_classified_queue(self):
+        return self.__classified_queue.get()
 
     def set_image_processed(self, image):
         """
