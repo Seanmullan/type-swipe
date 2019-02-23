@@ -6,7 +6,7 @@ This Singleton data class provides thread safe getters and setters for shared re
 from __future__ import with_statement
 import threading
 import numpy as np
-import queue
+import Queue as queue
 
 class Singleton(type):
     """
@@ -98,7 +98,7 @@ class Data(object):
 
     def enqueue_metal_queue(self, classification):
         self.__metal_queue.put(classification)
-
+        
     def dequeue_metal_queue(self):
         return self.__metal_queue.get()
 
@@ -144,5 +144,5 @@ class Data(object):
         """
         Set flag for starting motor system
         """
-        with self.__run_system:
+        with self.__lock_run_system:
             self.__run_system = run
