@@ -6,7 +6,11 @@ Acts as a fake IO class for Sandbox simulator. Used to test logic flow of progra
 #pylint: disable=no-self-use
 #pylint: disable=unused-argument
 #pylint: disable=too-few-public-methods
+import sys
+sys.path.append('data/')
 import numpy as np
+import data
+import threading
 
 class IOTools(object):
     """
@@ -16,6 +20,18 @@ class IOTools(object):
         self.camera = Camera()
         self.interface_kit = InterfaceKitHelper()
         self.motor_control = MotorControl()
+        self.data = data.Data()
+
+        def read_data():
+            while True:
+                proximity = self.data.get_proximity()
+                inductive = self.data.get_inductive()
+                sensor_data = np.array([proximity,inductive,0,0,0,0,0,0])
+                self.interface_kit.setSensors(sensor_data)
+
+        self.thread_read_data = threading.Thread(target=read_data)
+        self.thread_read_data.start()
+
 
 class Camera(object):
     """
@@ -46,23 +62,25 @@ class InterfaceKitHelper(object):
     """
     Fake sensor driver class
     """
-    __inputs = np.zeros(8)
-    __sensors = np.zeros(8)
 
     def __init__(self):
-        pass
+        self.__inputs = np.zeros(8)
+        self.__sensors = np.array([15,1000,0,0,0,0,0,0])
 
     def getInputs(self):
         """
         Return dummy readings
         """
-        return InterfaceKitHelper.__inputs[:]
+        return self.__inputs[:]
 
     def getSensors(self):
         """
         Return dummy readings
         """
-        return InterfaceKitHelper.__sensors[:]
+        return self.__sensors[:]
+
+    def setSensors(self, sensor_data):
+        self.__sensors = sensor_data
 
 class MotorControl(object):
     """
