@@ -3,6 +3,7 @@ import numpy as np
 import data
 import model
 import math
+import cv2
 
 class Preprocessor(threading.Thread):
 
@@ -14,9 +15,10 @@ class Preprocessor(threading.Thread):
         self.prev_distance = 0
 
     def run(self):
-        while data.get_run_system():
-            raw_image = self.data.get_image_raw()
-            self.detect_object(raw_image)
+        while True:
+            if data.get_run_system():
+                raw_image = self.data.get_image_raw()
+                self.detect_object(raw_image)
 
     def detect_object(self, raw_image):
         centroid = self.detect_centroid(raw_image)
@@ -34,7 +36,16 @@ class Preprocessor(threading.Thread):
             self.prev_raw_image = raw_image
 
     def detect_centroid(self, raw_image):
-        return np.zeros(2)
+        # find center of mass to track whether the object is located 
+        gray_image = cv2.cvtColor(raw_image, cv2.COLOR_BGR2GRAY)
+        ret,thresh = cv2.threshold(gray_image,127,255,1)
+        M = cv2.moments(thresh)
+    
+        #there may be bugs here.... M["m00"]
+        cX = int(M["m10"] / M["m00"])
+        cY = int(M["m01"] / M["m00"])
+
+        return np.array((cX,cY))
 
     def distance(self, centroid_1, centroid_2):
         return math.sqrt( (centroid_2[0] - centroid_1[0])**2 + (centroid_2[1] - centroid_2[1])**2 )

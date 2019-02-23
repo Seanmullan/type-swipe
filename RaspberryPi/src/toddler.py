@@ -34,17 +34,18 @@ class Toddler(object):
         self.m_c = io.motor_control
 
         def check_run_system():
-            with open('system_control') as json_file:
-                data = json.load(json_file)
-                run_system = data['system']['run']
-                conveyor_speed = data['system']['speed']
+            while True:
+                with open('system_control') as json_file:
+                    data = json.load(json_file)
+                    run_system = data['system']['run']
+                    conveyor_speed = data['system']['speed']
 
-                if run_system:
-                    self.conveyor.set_belt_speed(conveyor_speed)
-                else:
-                    self.conveyor.stop_belt()
-    
-                self.data.set_run_system(run_system)
+                    if run_system:
+                        self.conveyor.set_belt_speed(conveyor_speed)
+                    else:
+                        self.conveyor.stop_belt()
+        
+                    self.data.set_run_system(run_system)
 
         self.thread_check_run_system = threading.Thread(target=check_run_system)
         self.thread_check_run_system.start()

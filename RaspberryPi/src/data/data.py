@@ -96,6 +96,12 @@ class Data(object):
             image = self.__image_processed
         return image
 
+    def enqueue_metal_queue(self, classification):
+        self.__metal_queue.put(classification)
+
+    def dequeue_metal_queue(self):
+        return self.__metal_queue.get()
+
     def enqueue_classified_queue(self, classification):
         self.__classified_queue.put(classification)
 
