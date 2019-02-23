@@ -3,15 +3,16 @@ Entry point for the program, which is called by Sandbox
 """
 
 import sys
-sys.path.append('classifier/')
 sys.path.append('data/')
 #pylint: disable=wrong-import-position
 import threading
-import state_machine
 import data
 import preprocessor
 import json
-import conveyor
+if len(sys.argv) == 2:
+    import fake_conveyor as conveyor
+else:
+    import conveyor as conveyor
 
 class Toddler(object):
     """
@@ -24,8 +25,6 @@ class Toddler(object):
         self.preprocessor = preprocessor.Preprocessor()
         self.conveyor = conveyor.Conveyor()
 
-        self.preprocessor.start()
-
         self.data = data.Data()
 
         self.camera = io.camera.initCamera('pi', 'low')
@@ -35,7 +34,7 @@ class Toddler(object):
 
         def check_run_system():
             while True:
-                with open('system_control') as json_file:
+                with open('system_control.json') as json_file:
                     data = json.load(json_file)
                     run_system = data['system']['run']
                     conveyor_speed = data['system']['speed']
@@ -50,22 +49,35 @@ class Toddler(object):
         self.thread_check_run_system = threading.Thread(target=check_run_system)
         self.thread_check_run_system.start()
 
+        self.preprocessor.start()
+
 
     def control(self):
         """
         Called by Sandbox thread. Updates sensor data in Data class.
         """
-        print '{}\t{}'.format(self.get_sensors(), self.get_inputs())
+        #print '{}\t{}'.format(self.get_sensors(), self.get_inputs())
         sensor_data = self.get_sensors()
-        inductive = sensor_data[0]
-        proximity = sensor_data[1]
+        proximity = sensor_data[0]
+        inductive = sensor_data[1]
 
-        if proximity < 15 and inductive >= 900:
+        if proximity >= 15:
+            print 'No object present'
+            while self.get_sensors()[0] >= 15:
+                continue
+
+        elif proximity < 15 and inductive >= 900:
             self.data.enqueue_metal_queue(0)
             print 'Non-metal object detected'
+            while self.get_sensors()[0] < 15:
+                continue
+
         elif proximity < 15 and inductive < 900:
             self.data.enqueue_metal_queue(1)
             print 'Metallic object detected'
+            while self.get_sensors()[0] < 15:
+                continue
+
 
     def vision(self):
         """
