@@ -1,12 +1,13 @@
 """
-Acts as a Sandbox simulator. Used to test logic flow of program
+Acts as a Sandbox simulator. Used to test logic flow of program. To run the self-test,
+use 'python main.py --test'.
 """
 
 import threading
+import time
 import simulate_io
 import toddler
 import data
-import time
 
 class Main(object):
     """
@@ -23,7 +24,7 @@ class Main(object):
             Invokes Toddler control method
             """
             # Allow time for sensor data to initialise
-            time.sleep(1)
+            time.sleep(0.5)
             while 1:
                 self.__toddler.control()
 
@@ -35,6 +36,9 @@ class Main(object):
                 self.__toddler.vision()
 
         def self_test():
+            """
+            Simulates objects passing through proximity and inductive sensors
+            """
             self.__data.set_proximity(15)
             self.__data.set_inductive(1000)
             time.sleep(2)

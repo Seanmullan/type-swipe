@@ -6,11 +6,13 @@ import sys
 sys.path.append('data/')
 #pylint: disable=wrong-import-position
 import threading
+import json
 import data
 import preprocessor
-import json
+# If the self test is running, import fake conveyor class
 if len(sys.argv) == 2:
-    import fake_conveyor as conveyor
+    if sys.argv[1] == '--test':
+        import fake_conveyor as conveyor
 else:
     import conveyor as conveyor
 
@@ -22,39 +24,49 @@ class Toddler(object):
 
     def __init__(self, io):
 
+        # Initialise system objects and driver functions
         self.preprocessor = preprocessor.Preprocessor()
         self.conveyor = conveyor.Conveyor()
-
         self.data = data.Data()
-
         self.camera = io.camera.initCamera('pi', 'low')
         self.get_inputs = io.interface_kit.getInputs
         self.get_sensors = io.interface_kit.getSensors
-        self.m_c = io.motor_control
 
         def check_run_system():
+            """
+            Continuously checks the system control file, which will be written to by the
+            server. This includes setting the speed of the conveyor belt and stopping the
+            whole system.
+            """
             while True:
-                with open('system_control.json') as json_file:
-                    data = json.load(json_file)
-                    run_system = data['system']['run']
-                    conveyor_speed = data['system']['speed']
+                with open('data/system_control.json') as json_file:
+                    sys_data = json.load(json_file)
+                    run_system = sys_data['system']['run']
+                    conveyor_speed = sys_data['system']['speed']
 
+                    # If system is running, update conveyor belt speed
                     if run_system:
                         self.conveyor.set_belt_speed(conveyor_speed)
                     else:
                         self.conveyor.stop_belt()
-        
+
+                    # Set system wide flag for start/stop
                     self.data.set_run_system(run_system)
 
         self.thread_check_run_system = threading.Thread(target=check_run_system)
-        self.thread_check_run_system.start()
 
+        # Start system threads
+        self.thread_check_run_system.start()
         self.preprocessor.start()
 
 
     def control(self):
         """
-        Called by Sandbox thread. Updates sensor data in Data class.
+        Called by Sandbox thread. Determines if an object is present in the sensor zone, and if so,
+        whether it is metallic or non-metallic. A '1' is added to the metal queue if metallic, and
+        a 0 is added otherwise. While the current object is present, the function will spin until
+        the object leaves the sensor zone.
+        TODO: Figure out sensor thresholds
         """
         #print '{}\t{}'.format(self.get_sensors(), self.get_inputs())
         sensor_data = self.get_sensors()

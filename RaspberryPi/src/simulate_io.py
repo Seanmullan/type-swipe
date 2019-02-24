@@ -1,16 +1,19 @@
 """
-Acts as a fake IO class for Sandbox simulator. Used to test logic flow of program
+Acts as a fake IO class for Sandbox simulator. Used to test logic flow of program.
+Most of the methods have no functionality, they are just there to replace the
+methods from the real IO_Tools class, hence the long list of linter disabling.
 """
 
 #pylint: disable=invalid-name
 #pylint: disable=no-self-use
 #pylint: disable=unused-argument
 #pylint: disable=too-few-public-methods
+#pylint: disable=wrong-import-position
 import sys
 sys.path.append('data/')
+import threading
 import numpy as np
 import data
-import threading
 
 class IOTools(object):
     """
@@ -23,10 +26,13 @@ class IOTools(object):
         self.data = data.Data()
 
         def read_data():
+            """
+            Updates fake driver data
+            """
             while True:
                 proximity = self.data.get_proximity()
                 inductive = self.data.get_inductive()
-                sensor_data = np.array([proximity,inductive,0,0,0,0,0,0])
+                sensor_data = np.array([proximity, inductive, 0, 0, 0, 0, 0, 0])
                 self.interface_kit.setSensors(sensor_data)
 
         self.thread_read_data = threading.Thread(target=read_data)
@@ -65,7 +71,7 @@ class InterfaceKitHelper(object):
 
     def __init__(self):
         self.__inputs = np.zeros(8)
-        self.__sensors = np.array([15,1000,0,0,0,0,0,0])
+        self.__sensors = np.array([15, 1000, 0, 0, 0, 0, 0, 0])
 
     def getInputs(self):
         """
@@ -80,6 +86,9 @@ class InterfaceKitHelper(object):
         return self.__sensors[:]
 
     def setSensors(self, sensor_data):
+        """
+        Sets dummy sensor data
+        """
         self.__sensors = sensor_data
 
 class MotorControl(object):
