@@ -24,15 +24,29 @@ class Preprocessor(threading.Thread):
         self.prev_raw_image = np.ndarray((128, 160, 3))
         self.frame_centre = np.array((50, 50))
         self.prev_dist = 0
+        self._stop_event = threading.Event()
+
+    def stop(self):
+        self._stop_event.set()
+
+    def stopped(self):
+        return self._stop_event.is_set()
 
     def run(self):
         """
         If the run_system flag is set, execute object detection
         """
         while True:
+            if self.stopped():
+                break
+
             if self.data.get_run_system():
-                raw_image = self.data.get_image_raw()
-                self.detect_object(raw_image)
+                if not self.data.metal_queue_empty():
+                    raw_image = self.data.get_image_raw()
+                    self.detect_object(raw_image)
+                else:
+
+        print("preprocessor exiting")
 
     def detect_object(self, raw_image):
         """
@@ -57,6 +71,7 @@ class Preprocessor(threading.Thread):
         # Otherwise, the object is still moving closer to the centre of the frame.
         else:
             self.prev_raw_image = raw_image
+            self.prev_dist = dist
 
 def detect_centroid(raw_image):
     """

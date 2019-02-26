@@ -4,10 +4,12 @@ Entry point for the program, which is called by Sandbox
 
 import sys
 sys.path.append('data/')
+sys.path.append('motor_control/')
 #pylint: disable=wrong-import-position
 import threading
 import json
 import data
+sys.path.append('vision/')
 import preprocessor
 # If the self test is running, import fake conveyor class
 if len(sys.argv) == 2:
@@ -95,6 +97,6 @@ class Toddler(object):
         """
         Called by Sandbox thread. Updates image data in Data class.
         """
-        image = self.camera.getFrame()
-        self.data.set_image_raw(image)
-        self.camera.imshow('Camera', image)
+        # image = self.camera.getFrame()
+        # self.data.set_image_raw(image)
+        # self.camera.imshow('Camera', image)

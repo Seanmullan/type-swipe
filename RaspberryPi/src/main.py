@@ -8,6 +8,9 @@ import time
 import simulate_io
 import toddler
 import data
+import sys
+sys.path.append('tests/')
+import traceback
 
 class Main(object):
     """
@@ -18,14 +21,17 @@ class Main(object):
         self.__io = simulate_io.IOTools()
         self.__toddler = toddler.Toddler(self.__io)
         self.__data = data.Data()
+        self.__control_stop_event = threading.Event()
+        self.__vision_stop_event = threading.Event()
 
         def toddler_control():
             """
             Invokes Toddler control method
             """
             # Allow time for sensor data to initialise
-            time.sleep(0.5)
+            #time.sleep(0.5)
             while 1:
+                #print("running toddler_control in main")
                 self.__toddler.control()
 
         def toddler_vision():
@@ -33,28 +39,22 @@ class Main(object):
             Invokes Toddler vision method
             """
             while 1:
+                #print("running toddler vision in main")
                 self.__toddler.vision()
 
         def self_test():
             """
             Simulates objects passing through proximity and inductive sensors
             """
-            self.__data.set_proximity(15)
-            self.__data.set_inductive(1000)
-            time.sleep(2)
-            self.__data.set_proximity(10)
-            self.__data.set_inductive(100)
-            time.sleep(2)
-            self.__data.set_proximity(15)
-            self.__data.set_inductive(1000)
-            time.sleep(2)
-            self.__data.set_proximity(10)
-            self.__data.set_inductive(1000)
-            time.sleep(2)
+            import example_test
 
-        self.__toddler_control = threading.Thread(target=toddler_control)
+            import second_test
+
+            self.destroy()
+
+        self.__toddler_control = threading.Thread(name="control", target=toddler_control)
         self.__toddler_vision = threading.Thread(target=toddler_vision)
-        self.__self_test = threading.Thread(target=self_test)
+        self.__self_test = threading.Thread(name="test",target=self_test)
         self.start_threads()
 
     def start_threads(self):
@@ -69,9 +69,12 @@ class Main(object):
         """
         Join threads
         """
-        self.__toddler_control.join()
-        self.__toddler_vision.join()
-        self.__self_test.join()
+        print(threading.enumerate())
+        self.__toddler.preprocessor.stop()
+        self.__toddler.preprocessor.join()
+        print(threading.enumerate())
+
+        
 
 if __name__ == '__main__':
     MAIN = Main()

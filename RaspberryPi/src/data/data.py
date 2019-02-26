@@ -99,6 +99,9 @@ class Data(object):
         """
         return self.__metal_queue.get()
 
+    def metal_queue_empty(self):
+        return self.__metal_queue.empty()
+
     def enqueue_classified_queue(self, classification):
         """
         Enqueues classification
