@@ -24,19 +24,32 @@ class IOTools(object):
         self.interface_kit = InterfaceKitHelper()
         self.motor_control = MotorControl()
         self.data = data.Data()
+        self.__read_data_stop_event = threading.Event()
 
-        def read_data():
-            """
-            Updates fake driver data
-            """
-            while True:
-                proximity = self.data.get_proximity()
-                inductive = self.data.get_inductive()
-                sensor_data = np.array([proximity, inductive, 0, 0, 0, 0, 0, 0])
-                self.interface_kit.setSensors(sensor_data)
-
-        self.thread_read_data = threading.Thread(target=read_data)
+        self.thread_read_data = threading.Thread(name="io_read_data", target=self.read_data)
         self.thread_read_data.start()
+
+    def stop_read_data(self):
+        """
+        Sets the stop flag for the IOTools read data thread
+        """
+        self.__read_data_stop_event.set()
+
+    def stopped_read_data(self):
+        """
+        Returns true if the read data stop flag is set
+        """
+        return self.__read_data_stop_event.is_set()
+
+    def read_data(self):
+        """
+        Updates fake driver data
+        """
+        while not self.stopped_read_data():
+            proximity = self.data.get_proximity()
+            inductive = self.data.get_inductive()
+            sensor_data = np.array([proximity, inductive, 0, 0, 0, 0, 0, 0])
+            self.interface_kit.setSensors(sensor_data)
 
 
 class Camera(object):

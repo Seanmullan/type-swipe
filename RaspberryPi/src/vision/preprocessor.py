@@ -44,7 +44,6 @@ class Preprocessor(threading.Thread):
                 if not self.data.metal_queue_empty():
                     raw_image = self.data.get_image_raw()
                     self.detect_object(raw_image)
-                else:
 
         print("preprocessor exiting")
 
