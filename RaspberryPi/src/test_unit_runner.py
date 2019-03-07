@@ -1,6 +1,5 @@
 import unittest
 
-
 testModules = ['tests.test_unit_distance']
 
 suite = unittest.TestSuite()

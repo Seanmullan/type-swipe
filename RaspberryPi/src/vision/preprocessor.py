@@ -7,7 +7,6 @@ image and starts a thread for the Model to classify the object as glass or plast
 import threading
 import math
 import numpy as np
-#pylint: disable=unused-import
 import cv2
 import data
 import model
@@ -76,7 +75,6 @@ def detect_centroid(raw_image):
     """
     Finds the (x,y) coordinates of the centroid of the object
     """
-    #pylint: disable=unused-argument
     # # find center of mass to track whether the object is located
     # gray_image = cv2.cvtColor(raw_image, cv2.COLOR_BGR2GRAY)
     # _, thresh = cv2.threshold(raw_image, 127, 255, 1)

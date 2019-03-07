@@ -6,7 +6,6 @@ from __future__ import with_statement
 import threading
 import Queue as queue
 import numpy as np
-# pylint: disable=too-many-instance-attributes
 
 class Singleton(type):
     """

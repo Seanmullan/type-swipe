@@ -10,7 +10,6 @@ import toddler
 import data
 import sys
 sys.path.append('tests/')
-import traceback
 
 class Main(object):
     """
@@ -24,20 +23,16 @@ class Main(object):
         self.__control_stop_event = threading.Event()
         self.__vision_stop_event = threading.Event()
 
-
         self.__toddler_control = threading.Thread(name="control", target=self.toddler_control)
         self.__toddler_vision = threading.Thread(name="vision", target=self.toddler_vision)
-        self.__self_test = threading.Thread(name="test",target=self.self_test)
+        self.__self_test = threading.Thread(name="test", target=self.self_test)
         self.start_threads()
 
     def toddler_control(self):
         """
         Invokes Toddler control method
         """
-        # Allow time for sensor data to initialise
-        #time.sleep(0.5)
         while not self.stopped_control():
-            #print("control")
             self.__toddler.control()
 
     def stop_control(self):
@@ -59,7 +54,6 @@ class Main(object):
         Invokes Toddler vision method
         """
         while not self.stopped_vision():
-            #print("vision")
             self.__toddler.vision()
 
     def stop_vision(self):
@@ -80,7 +74,6 @@ class Main(object):
         Simulates objects passing through proximity and inductive sensors
         """
         import example_test
-
         import second_test
 
         self.destroy()
@@ -95,36 +88,15 @@ class Main(object):
 
     def destroy(self):
         """
-        Join threads
+        Stop threads
         """
-        print(threading.enumerate())
 
         self.__toddler.preprocessor.stop()
-        self.__toddler.preprocessor.join()
-
-        print("Stopping vision thread")
         self.stop_vision()
-        self.__toddler_vision.join()
-        print("Stopped vision thread")
-
-        print("Stopping control thread")
         self.stop_control()
-        self.__toddler_control.join()
-        print("Stopped control thread")
-
-        print("Stopping IOTools read data thread")
         self.__io.stop_read_data()
-        self.__io.thread_read_data.join()
-        print("Stopped IOTools read data thread")
-
-        print("Stopping toddler read data thread")
         self.__toddler.stop_check_run_system()
         self.__toddler.thread_check_run_system.join()
-        print("Stopped toddler read data thread")
-
-        print(threading.enumerate())
-
-        
 
 if __name__ == '__main__':
     MAIN = Main()

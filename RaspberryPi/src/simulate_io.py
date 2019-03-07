@@ -4,11 +4,6 @@ Most of the methods have no functionality, they are just there to replace the
 methods from the real IO_Tools class, hence the long list of linter disabling.
 """
 
-#pylint: disable=invalid-name
-#pylint: disable=no-self-use
-#pylint: disable=unused-argument
-#pylint: disable=too-few-public-methods
-#pylint: disable=wrong-import-position
 import sys
 sys.path.append('data/')
 import threading
