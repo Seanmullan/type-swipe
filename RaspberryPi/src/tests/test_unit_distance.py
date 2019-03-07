@@ -14,7 +14,7 @@ class TestUnitDistance(unittest.TestCase):
 
         distance = preprocessor.distance(centroid1, centroid2)
 
-        self.assertTrue(distance == 2.828, "Distance calculator in preprocessor incorrectly calculates the distance between centroids")
+        self.assertTrue(distance == 2, "Distance calculator in preprocessor incorrectly calculates the distance between centroids")
 
 
 if __name__ == '__main__':

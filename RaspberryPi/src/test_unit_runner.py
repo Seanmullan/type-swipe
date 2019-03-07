@@ -1,6 +1,10 @@
 import unittest
+import sys
+sys.path.append('data/')
+import data
+sys.path.append('tests/')
 
-testModules = ['tests.test_unit_distance']
+testModules = ['test_unit_distance']
 
 suite = unittest.TestSuite()
 

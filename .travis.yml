@@ -3,11 +3,13 @@ language: python
 python:
     - "2.7"
 
-# install dependencies
+# Install dependencies
 install: 
   - pip install -r requirements.txt
 
+# Run tests
 script:
+  - python test_unit_runner.py
 
 # notify slack
 notifications:
