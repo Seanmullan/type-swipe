@@ -9,7 +9,7 @@ install:
 
 # Run tests
 script:
-  - python test_unit_runner.py
+  - python RaspberryPi/src/test_unit_runner.py
 
 # notify slack
 notifications:
