@@ -3,16 +3,14 @@ language: python
 python:
     - "2.7"
 
-before_install:
-  - cd RaspberryPi/src/
-
 # Install dependencies
 install: 
   - pip install -r requirements.txt
 
 # Run tests
 script:
-  - python RaspberryPi/src/test_unit_runner.py
+  - cd RaspberryPi/src/
+  - python test_unit_runner.py
 
 # notify slack
 notifications:
