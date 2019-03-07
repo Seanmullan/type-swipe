@@ -2,9 +2,9 @@
 This Singleton data class provides thread safe getters and setters for shared resources
 """
 
-#pylint: disable=too-many-instance-attributes
 from __future__ import with_statement
 import threading
+import Queue as queue
 import numpy as np
 
 class Singleton(type):
@@ -26,16 +26,16 @@ class Data(object):
     def __init__(self):
         self.__proximity = 0
         self.__inductive = 0
-        self.__image_raw = np.zeros(500)
-        self.__image_processed = np.zeros(500)
-        self.__classification = -1
+        self.__image_raw = np.ndarray((128, 160, 3))
         self.__run_system = False
+
+        # FIFO queues are syncronized
+        self.__classified_queue = queue.Queue()
+        self.__metal_queue = queue.Queue()
 
         self.__lock_proximity = threading.RLock()
         self.__lock_inductive = threading.RLock()
         self.__lock_image_raw = threading.RLock()
-        self.__lock_image_processed = threading.RLock()
-        self.__lock_classification = threading.RLock()
         self.__lock_run_system = threading.RLock()
 
     def get_proximity(self):
@@ -74,7 +74,7 @@ class Data(object):
         """
         Return image take by Pi
         """
-        image = np.zeros(500)
+        image = np.ndarray((128, 160, 3))
         with self.__lock_image_raw:
             image = self.__image_raw
         return image
@@ -86,37 +86,32 @@ class Data(object):
         with self.__lock_image_raw:
             self.__image_raw = image
 
-    def get_image_processed(self):
+    def enqueue_metal_queue(self, metallic):
         """
-        Return preprocessed image
+        Enqueues metal (1) or non-metal (0)
         """
-        image = np.zeros(500)
-        with self.__lock_image_processed:
-            image = self.__image_processed
-        return image
+        self.__metal_queue.put(metallic)
 
-    def set_image_processed(self, image):
+    def dequeue_metal_queue(self):
         """
-        Set preprocessed image
+        Dequeue and returns 1 or 0 for metallic
         """
-        with self.__lock_image_processed:
-            self.__image_processed = image
+        return self.__metal_queue.get()
 
-    def get_classification(self):
-        """
-        Return classification
-        """
-        classification = 0
-        with self.__lock_classification:
-            classification = self.__classification
-        return classification
+    def metal_queue_empty(self):
+        return self.__metal_queue.empty()
 
-    def set_classification(self, classification):
+    def enqueue_classified_queue(self, classification):
         """
-        Set classification
+        Enqueues classification
         """
-        with self.__lock_classification:
-            self.__classification = classification
+        self.__classified_queue.put(classification)
+
+    def dequeue_classified_queue(self):
+        """
+        Dequeue and returns classification
+        """
+        return self.__classified_queue.get()
 
     def get_run_system(self):
         """
@@ -131,5 +126,5 @@ class Data(object):
         """
         Set flag for starting motor system
         """
-        with self.__run_system:
+        with self.__lock_run_system:
             self.__run_system = run

@@ -4,7 +4,6 @@
 - author ****
 '''
 
-#pylint: disable=import-error
 import smbus
 
 BUS = smbus.SMBus(1)

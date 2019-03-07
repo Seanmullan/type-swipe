@@ -1,2 +1,1 @@
-# PEP8
-pylint==1.9.4
+opencv-python
