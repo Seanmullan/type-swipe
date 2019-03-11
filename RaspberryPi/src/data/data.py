@@ -99,6 +99,9 @@ class Data(object):
         return self.__metal_queue.get()
 
     def metal_queue_empty(self):
+        """
+        Returns true if queue is empty
+        """
         return self.__metal_queue.empty()
 
     def enqueue_classified_queue(self, classification):
@@ -112,6 +115,12 @@ class Data(object):
         Dequeue and returns classification
         """
         return self.__classified_queue.get()
+
+    def classification_queue_empty(self):
+        """
+        Returns true if queue is empty
+        """
+        return self.__classified_queue.empty()
 
     def get_run_system(self):
         """

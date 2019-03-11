@@ -5,14 +5,17 @@ Entry point for the program, which is called by Sandbox
 import sys
 sys.path.append('data/')
 sys.path.append('motor_control/')
+sys.path.append('vision/')
+sys.path.append('motor_control/')
 import threading
 import time
 import json
 import data
 import motor
 import serial
-sys.path.append('vision/')
 import preprocessor
+import sorter
+import object_type
 # If the self test is running, import fake conveyor class
 if len(sys.argv) == 2:
     if sys.argv[1] == '--test':
@@ -44,6 +47,7 @@ class Toddler(object):
         self.conveyor = conveyor.Conveyor()
         self.data = data.Data()
         self.preprocessor = preprocessor.Preprocessor()
+        self.sorter = sorter.Sorter()
         self.camera = io.camera.initCamera('pi', 'low')
         self.get_inputs = io.interface_kit.getInputs
         self.get_sensors = io.interface_kit.getSensors
@@ -63,6 +67,7 @@ class Toddler(object):
         self.thread_check_run_system.start()
         self.thread_proxi.start()
         self.preprocessor.start()
+        self.sorter.start()
 
     def stop_check_run_system(self):
         """
@@ -136,8 +141,10 @@ class Toddler(object):
             max_weight = max(self.weight_array)
             if max_weight < self.weight_threshold:
                 print "Plastic object"
+                self.data.enqueue_classified_queue(ObjectType.plastic)
             else:
                 print "Glass object"
+                self.data.enqueue_classified_queue(ObjectType.glass)
             self.weight_array = []
             self.wait(True)
 
@@ -145,6 +152,7 @@ class Toddler(object):
         elif proximity < self.proximity_thresh and inductive > self.inductive_thresh:
             self.data.enqueue_metal_queue(1)
             print 'Metallic object detected'
+            self.data.enqueue_classified_queue(ObjectType.metal)
             self.wait(True)
 
     def wait(self, object_present):
@@ -154,13 +162,17 @@ class Toddler(object):
         """
         if not object_present:
             while self.data.get_proximity() >= self.proximity_thresh:
-                print '{}\t{}'.format(self.get_sensors(), self.get_inputs())
+                #print '{}\t{}'.format(self.get_sensors(), self.get_inputs())
+                weight = float(self.get_sensors()[3])
+                self.weight_buffer.append(weight)
                 if self.stopped_control():
                     break
                 else:
                     time.sleep(0.1)
         else:
             while self.data.get_proximity() < self.proximity_thresh:
+                weight = float(self.get_sensors()[3])
+                self.weight_buffer.append(weight)
                 if self.stopped_control():
                     break
                 else:
