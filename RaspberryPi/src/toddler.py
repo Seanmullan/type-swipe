@@ -31,10 +31,14 @@ class Toddler(object):
         # Define sensor thresholds
         self.proximity_thresh = 13
         self.inductive_thresh = 300
+        self.weight_thresh = 100
 
         # Initialise sensor values
         self.proximity = 15
         self.inductive = 100
+
+        # Initialise buffer for weight sensor values
+        self.weight_buffer = []
 
         # Initialise system objects and driver functions
         self.conveyor = conveyor.Conveyor()
@@ -117,6 +121,8 @@ class Toddler(object):
         print '{}\t{}'.format(self.get_sensors(), self.get_inputs())
         proximity = self.data.get_proximity()
         inductive = float(self.get_sensors()[2])
+        weight = float(self.get_sensors()[3])
+        self.weight_buffer.append(weight)
 
         # No object present in sensor zone
         if proximity >= self.proximity_thresh:
@@ -127,6 +133,13 @@ class Toddler(object):
         elif proximity < self.proximity_thresh and inductive <= self.inductive_thresh:
             self.data.enqueue_metal_queue(0)
             print 'Non-metal object detected'
+            max_weight = max(self.weight_array)
+            if max_weight < self.weight_threshold:
+                print "Plastic object"
+            else:
+                print "Glass object"
+            self.weight_array = []
+            self.wait(True)
 
         # Metallic object present in sensor zone
         elif proximity < self.proximity_thresh and inductive > self.inductive_thresh:
