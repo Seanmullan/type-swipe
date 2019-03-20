@@ -24,5 +24,4 @@ class Conveyor(object):
         '''
         Stops the front and back motors of the conveyor belt
         '''
-        motor.stop_motor(self.id_motor_front)
-        motor.stop_motor(self.id_motor_back)
+        motor.stop_motors()

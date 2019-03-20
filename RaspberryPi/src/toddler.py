@@ -30,14 +30,14 @@ class Toddler(object):
     """
 
     def __init__(self, io):
-
+        self.ser = serial.Serial('/dev/ttyACM0', 9600)
         # Define sensor thresholds
-        self.proximity_thresh = 13
+        self.proximity_thresh = 15
         self.inductive_thresh = 300
         self.weight_thresh = 100
 
         # Initialise sensor values
-        self.proximity = 15
+        self.proximity = 17
         self.inductive = 100
 
         # Initialise buffer for weight sensor values
@@ -66,7 +66,7 @@ class Toddler(object):
         # Start system threads
         self.thread_check_run_system.start()
         self.thread_proxi.start()
-        self.preprocessor.start()
+        #self.preprocessor.start()
         self.sorter.start()
 
     def stop_check_run_system(self):
@@ -95,14 +95,11 @@ class Toddler(object):
 
                 # If system is running, update conveyor belt speed
                 if run_system:
-                    #self.conveyor.set_belt_speed(50)
-                    motor.motor_move(4, 100)
+                    #self.conveyor.set_belt_speed(conveyor_speed)
+                    #motor.motor_move(4,100)
                     time.sleep(0.2)
                 else:
                     self.conveyor.stop_belt()
-
-                # Set system wide flag for start/stop
-                self.data.set_run_system(run_system)
 
     def stop_control(self):
         """
@@ -123,10 +120,11 @@ class Toddler(object):
         a 0 is added otherwise. While the current object is present, the function will spin until
         the object leaves the sensor zone.
         """
-        print '{}\t{}'.format(self.get_sensors(), self.get_inputs())
+        #print '{}\t{}'.format(self.get_sensors(), self.get_inputs())
         proximity = self.data.get_proximity()
-        inductive = float(self.get_sensors()[2])
-        weight = float(self.get_sensors()[3])
+        sensor_data = self.get_sensors()
+        inductive = float(sensor_data[2])
+        weight = float(sensor_data[3])
         self.weight_buffer.append(weight)
 
         # No object present in sensor zone
@@ -168,7 +166,7 @@ class Toddler(object):
                 if self.stopped_control():
                     break
                 else:
-                    time.sleep(0.1)
+                    time.sleep(0.15)
         else:
             while self.data.get_proximity() < self.proximity_thresh:
                 weight = float(self.get_sensors()[3])
@@ -176,18 +174,17 @@ class Toddler(object):
                 if self.stopped_control():
                     break
                 else:
-                    time.sleep(0.1)
+                    time.sleep(0.15)
         time.sleep(0.2)
 
     def get_proxi(self):
         """
         Reads proximity value from USB port.
         """
-        ser = serial.Serial('/dev/ttyACM0', 9600)
         while self.data.get_run_system():
-            if ser.readline() != None:
+            if self.ser.readline() != None:
                 try:
-                    proxi = int(float(ser.readline()))
+                    proxi = int(float(self.ser.readline()))
                     self.data.set_proximity(proxi)
                 except ValueError:
                     print "Failed to convert proxi string to int"

@@ -4,10 +4,11 @@
 - author ****
 '''
 
-import smbus
+import smbus2
 
-BUS = smbus.SMBus(1)
-ADDRESS = 0x04
+BUS = smbus2.SMBus(1)
+MOTOR_ADDRESS = 0x04
+ENCODER_ADDRESS = 0x05
 MOVEMENT = ''
 #---------------------------------------------------------------------------
 #                              Useful functions
@@ -23,13 +24,22 @@ def motor_move(motor_id, power):
     mode = 2 if power >= 0 else 3
     cmd_byte = motor_id << 5 | 24 | mode << 1
     pwr = int(abs(power) * 2.55)
-    BUS.write_i2c_block_data(ADDRESS, 0, [cmd_byte, pwr])
+    BUS.write_i2c_block_data(MOTOR_ADDRESS, 0, [cmd_byte, pwr])
+
+def get_motor_position(motor_id):
+    msg = smbus2.i2c_msg.read(ENCODER_ADDRESS, 6)
+    BUS.i2c_rdwr(msg)
+    position = list(msg)[motor_id]
+    if position >= 128:
+        position -= 256
+    return abs(position)
 
 def write(value):
     """
     Write data to bus
     """
-    BUS.write_byte_data(ADDRESS, 0x00, value)
+    BUS.write_byte_data(MOTOR_ADDRESS, 0x00, value)
+
 
 def stop_motor(motor_id):
     """

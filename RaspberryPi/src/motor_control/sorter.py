@@ -7,7 +7,6 @@ import time
 import data
 import motor
 import object_type
-import enum as Enum
 
 class Sorter(threading.Thread):
     """
@@ -22,13 +21,13 @@ class Sorter(threading.Thread):
         self.vertical_motor = 3
         self.rotational_motor = 5
         self.vertical_pos = Vertical.up
-        self.rotational_pos = Rotation.right
+        self.rotational_pos = Rotation.left
         # Plastic is right, metal is left
 
         self.vertical_speed = 100
         self.rotational_speed = 100
-        self.vertical_movement_time = 3
-        self.rotational_movement_time = 3
+        self.vertical_clicks_thresh = 500
+        self.rotational_clicks_thresh = 500
 
     def run(self):
         """
@@ -50,7 +49,7 @@ class Sorter(threading.Thread):
         """
         Set the sorting plane to the default position (Up and left)
         """
-        self.move_swiper(Vertical.up, Rotation.right)
+        self.move_swiper(Vertical.up, Rotation.left)
 
     def sort_object(self, current_class):
         """
@@ -65,35 +64,58 @@ class Sorter(threading.Thread):
         elif current_class == object_type.ObjectType.metal:
             self.move_swiper(Vertical.down, Rotation.left)
 
-
     def move_swiper(self, vertical_direction, rotation_direction):
+        """
+        Sets each of the vertical and rotational motors. Each motor spins until the click thresholds
+        for each motor are surpassed.
+        """
+        vertical_clicks = 0
+        rotational_clicks = 0
 
-        max_move_time = max(self.vertical_movement_time, self.rotational_movement_time)
+        vertical_reading_count = 0
+        rotational_reading_count = 0
 
-        initial_time = time.time()
-
-        while (time.time() - initial_time < max_move_time):
+        while (vertical_clicks < self.vertical_clicks_thresh and rotational_clicks < self.rotational_clicks_thresh):
+            
+            # If there is a vertical movement
             if not vertical_direction == None:
                 self.vertical_move(vertical_direction)
-                if (time.time() - initial_time < self.vertical_movement_time):
+                if (vertical_clicks < self.vertical_clicks_thresh):
+                    # Ignore first two readings
+                    if vertical_reading_count > 2:
+                        vertical_clicks += motor.get_motor_position(self.vertical_motor)
+                    vertical_reading_count += 1
                     time.sleep(0.1)
                 else:
                     motor.stop_motor(self.vertical_motor)
+            else:
+                vertical_clicks = self.vertical_clicks_thresh
 
-            if (not rotation_direction == None):
+            # If there is a rotational movement
+            if not rotation_direction == None:
                 self.rotational_move(rotation_direction)
-                if (time.time() - initial_time < self.rotational_movement_time):
+                if (rotational_clicks < self.rotational_clicks_thresh):
+                    # Ignore first two readings
+                    if rotational_reading_count > 2:
+                        rotational_clicks += motor.get_motor_position(self.rotational_motor)
+                    rotational_reading_count += 1
                     time.sleep(0.1)
                 else:
                     motor.stop_motor(self.rotational_motor)
+            else:
+                rotational_clicks = self.rotational_clicks_thresh
 
         motor.stop_motor(self.vertical_motor)
         motor.stop_motor(self.rotational_motor)
 
+        # Set motor positions
         self.vertical_pos = Vertical.up if vertical_direction == Vertical.up else Vertical.down
         self.rotational_pos = Rotation.left if rotation_direction == Rotation.left else Rotation.right
         
     def vertical_move(self, direction):
+        """
+        Moves vertical motor
+        """
         if direction == Vertical.up:
             if self.vertical_pos == Vertical.down:
                 motor.motor_move(self.vertical_motor, self.vertical_speed)
@@ -102,12 +124,16 @@ class Sorter(threading.Thread):
                 motor.motor_move(self.vertical_motor, -self.vertical_speed)
     
     def rotational_move(self, direction):
+        """
+        Moves rotational motor
+        """
         if direction == Rotation.left:
             if self.rotational_pos == Rotation.right:
                 motor.motor_move(self.rotational_motor, self.rotational_speed)
         else:
             if self.rotational_pos == Rotation.left:
                 motor.motor_move(self.rotational_motor, -self.rotational_speed)
+
 
 class Vertical(object):
     up = 0
