@@ -95,8 +95,8 @@ class Toddler(object):
 
                 # If system is running, update conveyor belt speed
                 if run_system:
-                    self.conveyor.set_belt_speed(conveyor_speed)
-                    motor.motor_move(2, 100)
+                    #self.conveyor.set_belt_speed(50)
+                    motor.motor_move(4, 100)
                     time.sleep(0.2)
                 else:
                     self.conveyor.stop_belt()
@@ -138,21 +138,21 @@ class Toddler(object):
         elif proximity < self.proximity_thresh and inductive <= self.inductive_thresh:
             self.data.enqueue_metal_queue(0)
             print 'Non-metal object detected'
-            max_weight = max(self.weight_array)
-            if max_weight < self.weight_threshold:
+            max_weight = max(self.weight_buffer)
+            if max_weight < self.weight_thresh:
                 print "Plastic object"
-                self.data.enqueue_classified_queue(ObjectType.plastic)
+                self.data.enqueue_classified_queue(object_type.ObjectType.plastic)
             else:
                 print "Glass object"
-                self.data.enqueue_classified_queue(ObjectType.glass)
-            self.weight_array = []
+                self.data.enqueue_classified_queue(object_type.ObjectType.glass)
+            self.weight_buffer = []
             self.wait(True)
 
         # Metallic object present in sensor zone
         elif proximity < self.proximity_thresh and inductive > self.inductive_thresh:
             self.data.enqueue_metal_queue(1)
             print 'Metallic object detected'
-            self.data.enqueue_classified_queue(ObjectType.metal)
+            self.data.enqueue_classified_queue(object_type.ObjectType.metal)
             self.wait(True)
 
     def wait(self, object_present):
