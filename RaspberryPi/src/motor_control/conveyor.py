@@ -10,8 +10,8 @@ class Conveyor(object):
     '''
 
     def __init__(self):
-        self.id_motor_front = 1
-        self.id_motor_back = 2
+        self.id_motor_front = 3
+        self.id_motor_back = 5
 
     def set_belt_speed(self, speed):
         '''
@@ -24,5 +24,4 @@ class Conveyor(object):
         '''
         Stops the front and back motors of the conveyor belt
         '''
-        motor.stop_motor(self.id_motor_front)
-        motor.stop_motor(self.id_motor_back)
+        motor.stop_motors()
