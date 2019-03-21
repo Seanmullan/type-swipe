@@ -9,7 +9,7 @@ install:
 
 # Run tests
 script:
-  - cd RaspberryPi/src/
+  - cd src/RaspberryPi/
   - python test_unit_runner.py
 
 # notify slack
