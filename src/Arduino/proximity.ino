@@ -2,7 +2,7 @@
 #include <Wire.h>
 
 int trigPin = 6;    // Trigger
-int echoPin = 9;    // Echo
+int echoPin = A0;    // Echo
 long duration, cm;
 
 void setup() {
