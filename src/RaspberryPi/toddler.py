@@ -6,7 +6,7 @@ import sys
 sys.path.append('data/')
 sys.path.append('motor_control/')
 sys.path.append('vision/')
-sys.path.append('motor_control/')
+sys.path.append('sensors/')
 import threading
 import time
 import json
@@ -16,6 +16,7 @@ import serial
 import preprocessor
 import sorter
 import object_type
+import sensor_manager
 # If the self test is running, import fake conveyor class
 if len(sys.argv) == 2:
     if sys.argv[1] == '--test':
@@ -25,47 +26,46 @@ else:
 
 class Toddler(object):
     """
-    This class initialises all the threads, and updates the Data class with sensor
+    Initialises all the threads, and updates the Data class with sensor
     and image data
     """
 
     def __init__(self, io):
-        self.ser = serial.Serial('/dev/ttyACM0', 9600)
+
         # Define sensor thresholds
         self.proximity_thresh = 15
         self.inductive_thresh = 300
-        self.weight_thresh = 100
+        self.weight_thresh = 200
 
         # Initialise sensor values
-        self.proximity = 17
+        self.proximity = 20
         self.inductive = 100
 
-        # Initialise buffer for weight sensor values
+        # Initialise buffers for weight and inductive sensors
         self.weight_buffer = []
+        self.inductive_buffer = []
 
         # Initialise system objects and driver functions
         self.conveyor = conveyor.Conveyor()
         self.data = data.Data()
         self.preprocessor = preprocessor.Preprocessor()
         self.sorter = sorter.Sorter()
-        self.camera = io.camera.initCamera('pi', 'low')
-        self.get_inputs = io.interface_kit.getInputs
-        self.get_sensors = io.interface_kit.getSensors
+        self.sensor_manager = sensor_manager.SensorManager(io)
+        #self.camera = io.camera.initCamera('pi', 'low')
 
-        # Initialise helper threads
-        self.thread_proxi = threading.Thread(name="get_proxi", target=self.get_proxi)
+        # Initialise thread to check Json file
         self.thread_check_run_system = threading.Thread(
             name="check_run_system",
             target=self.check_run_system
         )
 
-        # Initialise thread stop flags
         self.control_event = threading.Event()
         self.check_run_system_event = threading.Event()
 
         # Start system threads
+        time.sleep(2)
         self.thread_check_run_system.start()
-        self.thread_proxi.start()
+        self.sensor_manager.start_sensors()
         #self.preprocessor.start()
         self.sorter.start()
 
@@ -87,19 +87,29 @@ class Toddler(object):
         server. This includes setting the speed of the conveyor belt and stopping the
         whole system.
         """
+        initialised_running = False
+
         while not self.stopped_check_run_system():
             with open('data/system_control.json') as json_file:
-                sys_data = json.load(json_file)
-                run_system = sys_data['system']['run']
-                conveyor_speed = sys_data['system']['speed']
+                try:
+                    sys_data = json.load(json_file)
+                    run_system = sys_data['system']['run']
+                    self.data.set_run_system(run_system)
 
-                # If system is running, update conveyor belt speed
-                if run_system:
-                    #self.conveyor.set_belt_speed(conveyor_speed)
-                    #motor.motor_move(4,100)
-                    time.sleep(0.2)
-                else:
-                    self.conveyor.stop_belt()
+                    if run_system:
+                        if initialised_running == False:
+                            try:
+                                self.conveyor.set_belt_speed(70)
+                                initialised_running = True
+                            except:
+                                print "Failed to write to motor board"
+                        time.sleep(0.2)
+                    else:
+                        initialised_running = False
+                        self.conveyor.stop_belt()
+                except:
+                    print "Failed to decode JSON"
+        self.conveyor.stop_belt()
 
     def stop_control(self):
         """
@@ -120,96 +130,66 @@ class Toddler(object):
         a 0 is added otherwise. While the current object is present, the function will spin until
         the object leaves the sensor zone.
         """
-        #print '{}\t{}'.format(self.get_sensors(), self.get_inputs())
-        proximity = self.data.get_proximity()
-        sensor_data = self.get_sensors()
-        inductive = float(sensor_data[2])
-        weight = float(sensor_data[3])
-        self.weight_buffer.append(weight)
-
+        
         # No object present in sensor zone
-        if proximity >= self.proximity_thresh:
-            print 'No object present'
-            self.wait(False)
+        if self.data.get_proximity() >= self.proximity_thresh:
+            time.sleep(0.15)
 
-        # Non-metallic object present in sensor zone
-        elif proximity < self.proximity_thresh and inductive <= self.inductive_thresh:
-            self.data.enqueue_metal_queue(0)
-            print 'Non-metal object detected'
-            max_weight = max(self.weight_buffer)
-            if max_weight < self.weight_thresh:
-                print "Plastic object"
-                self.data.enqueue_classified_queue(object_type.ObjectType.plastic)
-            else:
-                print "Glass object"
-                self.data.enqueue_classified_queue(object_type.ObjectType.glass)
-            self.weight_buffer = []
-            self.wait(True)
-
-        # Metallic object present in sensor zone
-        elif proximity < self.proximity_thresh and inductive > self.inductive_thresh:
-            self.data.enqueue_metal_queue(1)
-            print 'Metallic object detected'
-            self.data.enqueue_classified_queue(object_type.ObjectType.metal)
-            self.wait(True)
-
-    def wait(self, object_present):
-        """
-        If no object is present, the thread spins until an object is present. If an
-        object is present, the thread spins until the object leaves the sensor zone.
-        """
-        if not object_present:
-            while self.data.get_proximity() >= self.proximity_thresh:
-                #print '{}\t{}'.format(self.get_sensors(), self.get_inputs())
-                weight = float(self.get_sensors()[3])
-                self.weight_buffer.append(weight)
-                if self.stopped_control():
-                    break
-                else:
-                    time.sleep(0.15)
         else:
-            while self.data.get_proximity() < self.proximity_thresh:
-                weight = float(self.get_sensors()[3])
-                self.weight_buffer.append(weight)
-                if self.stopped_control():
-                    break
+            inductive_buffer = []
+            weight_buffer = []
+            initial_time = time.time()
+
+            while time.time() - initial_time < 0.75:
+                inductive_buffer.append(self.data.get_inductive())
+                weight_buffer.append(self.data.get_conveyor_weight())
+                time.sleep(0.05)
+
+            # Non-metallic object present in sensor zone
+            if max(inductive_buffer) <= self.inductive_thresh:
+                self.data.enqueue_metal_queue(0)
+                print 'Non-metal object detected'
+                
+                if max(weight_buffer) < self.weight_thresh:
+                    print "Plastic object"
+                    self.data.enqueue_classified_queue(object_type.ObjectType.plastic)
                 else:
-                    time.sleep(0.15)
-        time.sleep(0.2)
+                    print "Glass object"
+                    self.data.enqueue_classified_queue(object_type.ObjectType.glass)
 
-    def get_proxi(self):
-        """
-        Reads proximity value from USB port.
-        """
-        while self.data.get_run_system():
-            if self.ser.readline() != None:
-                try:
-                    proxi = int(float(self.ser.readline()))
-                    self.data.set_proximity(proxi)
-                except ValueError:
-                    print "Failed to convert proxi string to int"
+            # Metallic object present in sensor zone
+            else:
+                self.data.enqueue_metal_queue(1)
+                print 'Metallic object detected'
+                self.data.enqueue_classified_queue(object_type.ObjectType.metal)
 
+            weight_buffer = []
+            inductive_buffer = []
+            time.sleep(2)
+ 
     def vision(self):
         """
         Called by Sandbox thread. Updates image data in Data class.
         """
-        image = self.camera.getFrame()
-        self.data.set_image_raw(image)
-        self.camera.imshow('Camera', image)
+        #image = self.camera.getFrame()
+        #self.data.set_image_raw(image)
+        #self.camera.imshow('Camera', image)
         # cap0 = cv2.VideoCapture(1)
         # ret0, frame0 = cap0.read()
         # object_name = 'tester'
         # cv2.imwrite('/home/student/images/' + object_name + str(self.counter) + '.png', frame0)
         # self.counter += 1
         # print(frame0.shape)
-        time.sleep(0.05)
+        time.sleep(1)
 
     def destroy(self):
         """
         Shuts down system threads safely.
         """
         print "Shutting down system"
-        self.data.set_run_system(False)
         self.stop_control()
         self.stop_check_run_system()
+        self.thread_check_run_system.join()
+        self.data.set_run_system(False)
+        self.data.set_shut_down(True)
         self.conveyor.stop_belt()
