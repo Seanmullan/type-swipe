@@ -3,6 +3,7 @@ Controls the conveyor belt
 '''
 
 import motor
+import data
 
 class Conveyor(object):
     '''
@@ -10,8 +11,8 @@ class Conveyor(object):
     '''
 
     def __init__(self):
-        self.id_motor_front = 3
-        self.id_motor_back = 5
+        self.id_motor_front = data.Data.ENTRANCE_MOTOR
+        self.id_motor_back = data.Data.EXIT_MOTOR
 
     def set_belt_speed(self, speed):
         '''
