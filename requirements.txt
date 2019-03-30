@@ -1,1 +1,3 @@
 opencv-python
+google-cloud-storage
+psycopg2

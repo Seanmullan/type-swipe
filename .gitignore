@@ -13,3 +13,7 @@
 /lib64
 pip-selfcheck.json
 .Python
+
+# Bus libraries
+/serial
+/smbus2
