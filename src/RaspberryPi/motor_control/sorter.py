@@ -81,7 +81,7 @@ class Sorter(threading.Thread):
                     # Save item data to CSV and upload item data to database
                     item_data.save_data_to_file()
                     self.upload_to_database(object_id, current_class, image_path, image_name, weight_reading)
-                    
+                    time.sleep(5)
                 time.sleep(0.2)
             time.sleep(0.2)
         
@@ -92,7 +92,7 @@ class Sorter(threading.Thread):
         """
         Set the sorting plane to the default position (UP and ANTI_CLOCKWISE)
         """
-        self.move_swiper(Vertical.UP, Rotation.ANTI_CLOCKWISE)
+        self.move_sorter(Vertical.UP, Rotation.ANTI_CLOCKWISE)
         self.thread_encoder_event.set()
 
     def sort_object(self, current_class):
@@ -118,8 +118,8 @@ class Sorter(threading.Thread):
         vertical_clicks = 0
         rotational_clicks = 0
         initial_time = time.time()
-        vertical_moving = move_vertical(vertical_direction)
-        rotation_moving = move_rotational(rotation_direction)
+        vertical_moving = self.move_vertical(vertical_direction)
+        rotation_moving = self.move_rotational(rotation_direction)
 
         while (vertical_moving or rotation_moving):
             if (vertical_clicks < self.vertical_clicks_thresh and vertical_moving == True):
@@ -161,6 +161,8 @@ class Sorter(threading.Thread):
         motor.stop_motor(self.vertical_motor)
         motor.stop_motor(self.rotational_motor)
 
+        self.set_motor_positions(vertical_direction, rotation_direction)
+
     def move_vertical(self, vertical_direction):
         """
         Determine if vertical motor should move, and if so engage motor in appropriate direction.
@@ -169,7 +171,9 @@ class Sorter(threading.Thread):
         if vertical_direction == Vertical.UP:
             if self.vertical_pos == Vertical.DOWN:
                 try:
+                    print "[SORTER] Moving vertical up"
                     motor.motor_move(self.vertical_motor, self.vertical_speed)
+                    return True
                 except:
                     print "[SORTER] I2C Error: Vertical up"
             else:
@@ -178,17 +182,16 @@ class Sorter(threading.Thread):
         elif vertical_direction == Vertical.DOWN:
             if self.vertical_pos == Vertical.UP:
                 try:
+                    print "[SORTER] Moving vertical down"
                     motor.motor_move(self.vertical_motor, -self.vertical_speed)
+                    return True
                 except:
                     print "[SORTER] I2C Error: Vertical down"
             else:
                 return False
 
-        elif vertical_direction == None:
-            return False
-        
         else:
-            return True
+            return False
 
     def move_rotational(self, rotation_direction):
         """
@@ -198,7 +201,9 @@ class Sorter(threading.Thread):
         if rotation_direction == Rotation.ANTI_CLOCKWISE:
             if self.rotational_pos == Rotation.CLOCKWISE:
                 try:
+                    print "[SORTER] Moving rotational anti-clockwise"
                     motor.motor_move(self.rotational_motor, self.rotational_speed)
+                    return True
                 except:
                     print "[SORTER] I2C Error: Rotation anti-clockwise"
             else:
@@ -207,17 +212,16 @@ class Sorter(threading.Thread):
         elif rotation_direction == Rotation.CLOCKWISE:
             if self.rotational_pos == Rotation.ANTI_CLOCKWISE:
                 try:
+                    print "[SORTER] Moving rotational clockwise"
                     motor.motor_move(self.rotational_motor, -self.rotational_speed)
+                    return True
                 except:
                     print "[SORTER] I2C Error: Rotation clockwise"
             else:
                 return False
-    
-        elif rotation_direction == None:
-            return False
 
         else:
-            return True
+            return False
 
     def set_motor_positions(self, vertical_direction, rotation_direction):
         """
@@ -311,7 +315,7 @@ class Sorter(threading.Thread):
         thread_upload_data = threading.Thread(
             name="upload_data", 
             target=self.data.insert_data_to_database,
-            args=[object_id, current_class]
+            args=[object_id, current_class, weight_reading]
         )
         thread_upload_image = threading.Thread(
             name="upload_image",
