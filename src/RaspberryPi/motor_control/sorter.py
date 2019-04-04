@@ -76,12 +76,12 @@ class Sorter(threading.Thread):
                     self.sort_object(current_class)
                     
                     #Check weight sensors before continuing
-                    #self.check_bin_weights()
+                    self.check_bin_weights()
 
                     # Save item data to CSV and upload item data to database
                     item_data.save_data_to_file()
                     self.upload_to_database(object_id, current_class, image_path, image_name, weight_reading)
-                    time.sleep(5)
+                    
                 time.sleep(0.2)
             time.sleep(0.2)
         
