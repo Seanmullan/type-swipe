@@ -1,7 +1,5 @@
 '''
-- script used to test individual motors
-- used for debugging
-- author ****
+Writes commands to motor board.
 '''
 
 import smbus2
@@ -10,9 +8,6 @@ BUS = smbus2.SMBus(1)
 MOTOR_ADDRESS = 0x04
 ENCODER_ADDRESS = 0x05
 MOVEMENT = ''
-#---------------------------------------------------------------------------
-#                              Useful functions
-#---------------------------------------------------------------------------
 
 # Writing to motorboard
 def motor_move(motor_id, power):
