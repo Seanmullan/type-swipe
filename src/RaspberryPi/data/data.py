@@ -9,6 +9,9 @@ import numpy as np
 from google.cloud import storage
 import os
 import psycopg2
+import json
+import time
+import item_type
 
 # pylint: disable=too-many-instance-attributes
 
@@ -28,9 +31,8 @@ class Data(object):
     """
     __metaclass__ = Singleton
     # Define motor board indices
-    BUZZER         = 0
-    ENTRANCE_MOTOR = 1
-    INDUCTIVE_PWR  = 2
+    ENTRANCE_MOTOR_INDUCTIVE_PWR = 1
+    BUZZER  = 2
     VERTICAL_MOTOR = 3
     EXIT_MOTOR     = 4
     ROTATION_MOTOR = 5
@@ -50,13 +52,10 @@ class Data(object):
         self.__rotation_position = 0
         self.__bin_weights = [0,0,0]
         self.__conveyor_weight = 0
-        self.__image_raw = np.ndarray((128, 160, 3))
         self.__shut_down = False
         self.__run_system = False
-
-        # FIFO queues are syncronized
         self.__classified_queue = queue.Queue()
-        self.__metal_queue = queue.Queue()
+        self.next_object_id = self.get_highest_object_id()
 
         self.__lock_proximity = threading.RLock()
         self.__lock_inductive = threading.RLock()
@@ -163,37 +162,6 @@ class Data(object):
         """
         with self.__lock_conveyor:
             self.__conveyor_weight = weight
-    
-    def get_image_raw(self):
-        """
-        Return image take by Pi
-        """
-        image = np.ndarray((128, 160, 3))
-        with self.__lock_image_raw:
-            image = self.__image_raw
-        return image
-
-    def set_image_raw(self, image):
-        """
-        Set image take by Pi
-        """
-        with self.__lock_image_raw:
-            self.__image_raw = image
-
-    def enqueue_metal_queue(self, metallic):
-        """
-        Enqueues metal (1) or non-metal (0)
-        """
-        self.__metal_queue.put(metallic)
-
-    def dequeue_metal_queue(self):
-        """
-        Dequeue and returns 1 or 0 for metallic
-        """
-        return self.__metal_queue.get()
-
-    def metal_queue_empty(self):
-        return self.__metal_queue.empty()
 
     def enqueue_classified_queue(self, classification):
         """
@@ -245,65 +213,51 @@ class Data(object):
         with self.__lock_shut_down:
             self.__shut_down = shut_down
 
-    def insert_classified_to_database(classification):
-         """
-         Inserts classification of an object into database
-         """
-         sql = """INSERT INTO collected_data(object_classified)
-                 VALUES(%s) RETURNING object_classified;"""
-         conn = None
-         vendor_id = None
-         try:
-             # Read database configuration
-             conn = psycopg2.connect(dbname='s1764997', user='s1764997', password='password', host='pgteach', port='5432', sslmode='disable')
-             # Create a new cursor
-             cur = conn.cursor()
-             # Execute the INSERT statement
-             cur.execute(sql, (classification,))
-             # Commit the changes to the database
-             conn.commit()
-             # Close communication with the database
-             cur.close()
-         except (Exception, psycopg2.DatabaseError) as error:
-             print(error)
-         finally:
-             if conn is not None:
-                 conn.close()
+    def insert_data_to_database(self, obj_id, classification, obj_weight):
+        """
+        Inserts into database object's id, classification and bin where it fell
+        """
+        if classification == item_type.ItemType.glass:
+            object_class = "glass"
+        elif classification == item_type.ItemType.plastic:
+            object_class = "plastic"
+        else:
+            object_class = "metal"
 
-    def insert_data_to_database(obj_id, classification, obj_bin):
-         """
-         Inserts into database object's id, classification and bin where it fell
-         """
-         sql = """INSERT INTO collected_data(object_id, object_classified, object_bin)
-                 VALUES(%s, %s, %s) RETURNING object_classified;"""
-         conn = None
-         vendor_id = None
-         try:
-             # Read database configuration
-             conn = psycopg2.connect(dbname='s1764997', user='s1764997', password='password', host='pgteach', port='5432', sslmode='disable')
-             # Create a new cursor
-             cur = conn.cursor()
-             # Execute the INSERT statement
-             cur.execute(sql, (obj_id, classification, obj_bin))
-             # Commit the changes to the database
-             conn.commit()
-             # Close communication with the database
-             cur.close()
-         except (Exception, psycopg2.DatabaseError) as error:
-             print(error)
-         finally:
-             if conn is not None:
-                 conn.close()
+        print("Inserting object ID: " + str(obj_id) + " Classification: " + object_class)
+        sql = """INSERT INTO collected_data(object_id, object_classified, object_weight)
+                VALUES(%s, %s, %s) RETURNING object_id, object_classified, object_weight;"""
+        conn = None
+        vendor_id = None
+        try:
+            # Read database configuration
+            conn = psycopg2.connect(dbname='s1764997', user='s1764997', password='password', host='pgteach', port='5432', sslmode='disable')
+            # Create a new cursor
+            cur = conn.cursor()
+            # Execute the INSERT statement
+            cur.execute(sql, (obj_id, object_class, obj_weight))
+            # Commit the changes to the database
+            conn.commit()
+            # Close communication with the database
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+        
+        self.update_next_object_id()
 
-    def upload_image_to_cloud(bucket_name, source_file_name, destination_blob_name):
+    def upload_image_to_cloud(self, bucket_name, source_file_name, destination_blob_name):
         """
         Uploads an image to the bucket.
         bucket_name - name of bucket to upload image into
         source_file_name - path to and name of a file to upload
         destination_blob_name - destination on the bucket where the file will be uploaded
         """
+        initial_time = time.time()
         # Use credentials json file to authenticate for uploading the image
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="../credentials.json"
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="credentials.json"
 
         storage_client = storage.Client()
         bucket = storage_client.get_bucket(bucket_name)
@@ -314,3 +268,27 @@ class Data(object):
         print('File {} uploaded to {}.'.format(
             source_file_name,
             destination_blob_name))
+
+        print "Upload time elapsed: ", time.time() - initial_time
+
+    def get_highest_object_id(self):
+        """
+        Reads from file system_control.json which stores id of an object to be classified
+        """
+        with open('data/id.json') as json_file:  
+            data = json.load(json_file)
+            highest_id = data['item']['next_id']
+        return highest_id
+
+    def update_next_object_id(self):
+        """
+        Updates id of a next object to be classified into the file
+        """
+        data = ""
+        with open('data/id.json', 'r') as json_file:  
+            data = json.load(json_file)
+            data['item']['next_id'] += 1
+
+        if data != "":
+            with open('data/id.json', 'w') as json_file:
+                json.dump(data, json_file)
