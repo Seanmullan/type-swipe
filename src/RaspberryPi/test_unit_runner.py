@@ -4,7 +4,7 @@ sys.path.append('data/')
 import data
 sys.path.append('tests/')
 
-testModules = ['test_unit_distance']
+testModules = ['example_test']
 
 suite = unittest.TestSuite()
 
