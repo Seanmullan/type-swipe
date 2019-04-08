@@ -22,8 +22,8 @@ class Sorter(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.data = data.Data()
-        self.vertical_motor = 3
-        self.rotational_motor = 5
+        self.vertical_motor = self.data.VERTICAL_MOTOR
+        self.rotational_motor = self.data.ROTATION_MOTOR
         self.vertical_pos = Vertical.UP
         self.rotational_pos = Rotation.ANTI_CLOCKWISE
         self.current_class = -1
