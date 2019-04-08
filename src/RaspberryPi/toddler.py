@@ -42,13 +42,6 @@ class Toddler(object):
         self.inductive_thresh = 450
         self.weight_thresh = 200
         self.weight_interval = 100
-        # Initialise sensor values
-        self.proximity = 20
-        self.inductive = 100
-
-        # Initialise buffers for weight and inductive sensors
-        self.weight_buffer = []
-        self.inductive_buffer = []
 
         # Initialise system objects and driver functions
         self.conveyor = conveyor.Conveyor()
