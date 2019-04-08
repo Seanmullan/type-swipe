@@ -73,7 +73,7 @@ class Sorter(threading.Thread):
                     weight_reading = item_data.get_item_weight() 
                     
                     print "[SORTER] Sorting ", str(current_class)
-                    self.sort_object(current_class)
+                    self.sort_item(current_class)
                     
                     #Check weight sensors before continuing
                     self.check_bin_weights()
@@ -95,7 +95,7 @@ class Sorter(threading.Thread):
         self.move_sorter(Vertical.UP, Rotation.ANTI_CLOCKWISE)
         self.thread_encoder_event.set()
 
-    def sort_object(self, current_class):
+    def sort_item(self, current_class):
         """
         Moves sorter into the correct position based on the object classification
         """
