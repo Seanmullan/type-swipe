@@ -1,0 +1,19 @@
+# VSCode
+.vscode
+.idea
+.DS_Store
+
+# Binaries
+*.pyc
+
+# Python environment
+/bin
+/include
+/lib
+/lib64
+pip-selfcheck.json
+.Python
+
+# Bus libraries
+/serial
+/smbus2

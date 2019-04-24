@@ -1,0 +1,17 @@
+language: python
+
+python:
+    - "2.7"
+
+# Install dependencies
+install: 
+  - pip install -r requirements.txt
+
+# Run tests
+script:
+  - cd src/RaspberryPi/
+  - python test_unit_runner.py
+
+# notify slack
+notifications:
+  slack: sdpteam5:Phj2pEgAtOIqSsJ9hST7F1qD

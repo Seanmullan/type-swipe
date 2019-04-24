@@ -1,0 +1,18 @@
+#!/usr/bin/env nodejs
+
+const express = require('express');
+const app = express();
+const port = 8080;var $ = require('jQuery');
+
+app.get('/', (req, res) => res.send('TypeSwipe raspberry pi here. Send a post request with { \'state\' : [on/off] } to this server to control the robot state'));
+
+app.post('/', function(req, res) {
+	var msg = req.query.state;
+	msg = req.body.message;
+	var response = 'Received post message: ' + msg;
+	console.log(response);
+	res.send(response);
+});
+
+app.listen(port, () => console.log('Server listening on port ${port}'));
+

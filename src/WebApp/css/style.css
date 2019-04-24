@@ -1,0 +1,242 @@
+body {
+    margin-top: 20px;
+    font-size: 14px;
+    background-color: #eaebed; 
+}
+
+#data_table_wrapper .row{
+    width: 100%;
+}
+
+.col-sm-12 .row {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+.col-sm-6 .box-primary {
+    width: 98%;
+}
+
+.col-sm-6 .box-primary.left {
+    margin-right: 2%;
+}
+.col-sm-6 .box-primary.right {
+    margin-left: 2%;
+}
+
+.main-header__headline{ 
+    font-size: 22px;
+    color: black;
+}
+
+.main-header__small-headline {
+    font-weight: 300;
+    font-size: 16px;
+    color: #70757c;
+}
+
+.content {
+    max-width: 90%;
+    margin-left: 5%;
+    margin-right: 5%;
+    padding: 0px;
+}
+
+#inner_row .content {
+    margin-left: 0%;
+    margin-right: 0%;
+}
+
+.navbar {
+    border-radius: 5px;
+}
+
+.nav-link {
+    color: white;   
+    font-size: 15px;
+}
+.nav-link:hover {
+    color: white;
+    font-weight: 600;
+}
+
+.block {
+    padding-left: 10px;
+}
+.block__header{
+    padding-top: 15px;
+    padding-bottom: 5px;
+}
+.block__headline {
+    color: #3282b3;
+    font-size: 16px;
+}
+.block__content {
+    font-size: 14px;
+}
+
+.block__text {
+    font-size: 14px;
+}
+.block__text--highlighted {
+    font-weight: 600;
+}
+
+.--display-block {
+    display: block;
+}
+
+/*
+background-image: url("original-9.jpg");
+background-size: 30%;
+background-repeat: no-repeat;
+background-position: right top;
+*/
+
+.myImg {
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.myImg:hover {opacity: 0.7;}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+}
+
+/* Modal Content (image) */
+.modal-content {
+  margin: auto;
+  display: block;
+  width: 80%;
+  max-width: 700px;
+}
+
+/* Caption of Modal Image */
+.caption {
+  margin: auto;
+  display: block;
+  width: 80%;
+  max-width: 700px;
+  text-align: center;
+  color: #ccc;
+  padding: 10px 0;
+  height: 150px;
+}
+
+/* Add Animation */
+.modal-content, .caption {  
+  -webkit-animation-name: zoom;
+  -webkit-animation-duration: 0.6s;
+  animation-name: zoom;
+  animation-duration: 0.6s;
+}
+
+@-webkit-keyframes zoom {
+  from {-webkit-transform:scale(0)} 
+  to {-webkit-transform:scale(1)}
+}
+
+@keyframes zoom {
+  from {transform:scale(0)} 
+  to {transform:scale(1)}
+}
+
+/* The Close Button */
+.close {
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.close:hover,
+.close:focus {
+  color: #bbb;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* 100% Image Width on Smaller Screens */
+@media only screen and (max-width: 700px){
+  .modal-content {
+    width: 100%;
+  }
+}
+
+#hidden_list {
+  display:none;
+}
+
+#update_list {
+  display:none;
+}
+
+.zero-padding {
+  padding: 0px;
+}
+
+.zero-side-margin {
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+.box-limited-width {
+  width: 98%;
+}
+
+#message_connected {
+  font-size:15px;
+  color: #d73925;
+}
+
+#control_button {
+  padding: 18px 75px;
+  display: block;
+  margin: auto;
+  margin-bottom: 7px;
+  margin-top: 14px;
+}
+
+#classification_accuracies {
+  width:50%;
+}
+
+.box-with-right-margin {
+  margin-right: 10px;
+}
+
+.table-with-top-margin {
+  margin-top: 10px;
+}
+
+.users-list>li img {
+  height: 80px;
+}
+
+.user-image-height {
+  height: 80px;
+}
+
+.btn-margin-left {
+  margin-left: 7px;
+}
+
+#update_object {
+  width: 100%;
+}

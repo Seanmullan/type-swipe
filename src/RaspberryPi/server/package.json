@@ -1,0 +1,14 @@
+{
+  "name": "typeswipe_pi",
+  "version": "1.0.0",
+  "description": "TypeSwipe raspberry pi server",
+  "main": "typeswipe_server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "SDP5",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}
